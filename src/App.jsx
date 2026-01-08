@@ -1,8 +1,16 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import MovieList from "./components/MovieList";
+import MovieDetails from "./components/MovieDetails";
+
 function App() {
   return (
-    <>
-      <h1>Hello World</h1>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MovieList />} />
+        <Route path="/movie/:id" element={<MovieDetails />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
