@@ -76,10 +76,8 @@ const MovieDetails = () => {
           fetch(videosUrl, { signal: controller.signal }),
         ]);
 
-        if (!detailsRes.ok)
-          throw new Error(`Erreur API (${detailsRes.status})`);
-        if (!similarRes.ok)
-          throw new Error(`Erreur API (${similarRes.status})`);
+        if (!detailsRes.ok) throw new Error(`Erreur API (${detailsRes.status})`);
+        if (!similarRes.ok) throw new Error(`Erreur API (${similarRes.status})`);
         if (!videosRes.ok) throw new Error(`Erreur API (${videosRes.status})`);
 
         const detailsData = await detailsRes.json();
@@ -149,6 +147,7 @@ const MovieDetails = () => {
     : null;
 
   const cast = movie.credits?.cast?.slice(0, 10) ?? [];
+  const genres = movie.genres?.map((g) => g.name).join(", ") || "—";
 
   return (
     <div className={styles.container}>
@@ -167,7 +166,7 @@ const MovieDetails = () => {
       )}
 
       <div className={styles.topGrid}>
-        <div>
+        <div className={styles.posterColumn}>
           <div className={styles.posterCard}>
             {poster ? (
               <img
@@ -191,61 +190,72 @@ const MovieDetails = () => {
           </button>
         </div>
 
-        <div>
-          <h1 className={styles.title}>{movie.title}</h1>
+        <div className={styles.infoCard}>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>{movie.title}</h1>
+          </div>
 
           {movie.tagline && <p className={styles.tagline}>{movie.tagline}</p>}
 
-          <p className={styles.metaLine}>
-            ⭐ {Number(movie.vote_average).toFixed(1)}{" "}
-            <span className={styles.metaMuted}>({movie.vote_count} votes)</span>
-          </p>
+          <div className={styles.metaRow}>
+            <span className={`${styles.pill} ${styles.pillStrong}`}>
+              ⭐ {Number(movie.vote_average).toFixed(1)}
+              <span style={{ opacity: 0.8, fontWeight: 700 }}>
+                ({movie.vote_count})
+              </span>
+            </span>
 
-          <p className={styles.metaLine}>
-            <b>Date de sortie :</b> {movie.release_date || "—"}
-            {"  "}•{"  "}
-            <b>Durée :</b> {movie.runtime ? `${movie.runtime} min` : "—"}
-          </p>
+            <span className={styles.pill}>
+              📅 {movie.release_date || "—"}
+            </span>
 
-          {movie.genres?.length > 0 && (
-            <p className={styles.metaLine}>
-              <b>Genres :</b> {movie.genres.map((g) => g.name).join(", ")}
-            </p>
-          )}
+            <span className={styles.pill}>
+              ⏱️ {movie.runtime ? `${movie.runtime} min` : "—"}
+            </span>
+          </div>
 
-          <h2 className={styles.resumeTitle}>Résumé</h2>
+          <div className={styles.genresLine}>
+            <b>Genres :</b> {genres}
+          </div>
+
+          <h2 className={styles.sectionTitle}>Résumé</h2>
           <p className={styles.overview}>
             {movie.overview || "Aucun résumé disponible."}
           </p>
 
-          <section className={styles.trailerSection}>
-            <h2 className={styles.sectionTitle}>Bande-annonce</h2>
+          <h2 className={styles.sectionTitle}>Bande-annonce</h2>
 
-            {trailer ? (
-              <div className={styles.trailerFrame}>
-                <div className={styles.trailerRatio}>
-                  <iframe
-                    className={styles.trailerIframe}
-                    src={`https://www.youtube-nocookie.com/embed/${trailer.key}`}
-                    title={trailer.name || `Trailer ${movie.title}`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
+          {trailer ? (
+            <div className={styles.trailerFrame}>
+              <div className={styles.trailerRatio}>
+                <iframe
+                  className={styles.trailerIframe}
+                  src={`https://www.youtube-nocookie.com/embed/${trailer.key}`}
+                  title={trailer.name || `Trailer ${movie.title}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
               </div>
-            ) : (
-              <p>Aucune bande-annonce YouTube trouvée pour ce film.</p>
-            )}
-          </section>
+            </div>
+          ) : (
+            <p className={styles.message}>
+              Aucune bande-annonce trouvée pour ce film.
+            </p>
+          )}
         </div>
       </div>
 
-      <h2 className={styles.sectionTitle}>Acteurs principaux</h2>
+      <div className={styles.gridTitleRow}>
+        <h2 className={styles.sectionTitle} style={{ margin: 0 }}>
+          Acteurs principaux
+        </h2>
+        <span className={styles.gridHint}>Jusqu’à 10</span>
+      </div>
 
       {cast.length === 0 ? (
-        <p>Aucun casting disponible.</p>
+        <p className={styles.message}>Aucun casting disponible.</p>
       ) : (
-        <div className={styles.castGrid}>
+        <div className={`${styles.grid} ${styles.castGrid}`}>
           {cast.map((a) => {
             const profile = a.profile_path
               ? `${profileBase}${a.profile_path}`
@@ -265,7 +275,7 @@ const MovieDetails = () => {
                   )}
                 </div>
 
-                <div className={styles.cardBody10}>
+                <div className={styles.cardBody}>
                   <div className={styles.actorName}>{a.name}</div>
                   <div className={styles.actorRole}>{a.character}</div>
                 </div>
@@ -275,12 +285,17 @@ const MovieDetails = () => {
         </div>
       )}
 
-      <h2 className={styles.sectionTitle}>Films similaires</h2>
+      <div className={styles.gridTitleRow}>
+        <h2 className={styles.sectionTitle} style={{ margin: 0 }}>
+          Films similaires
+        </h2>
+        <span className={styles.gridHint}>Jusqu’à 12</span>
+      </div>
 
       {similarMovies.length === 0 ? (
-        <p>Aucun film similaire trouvé.</p>
+        <p className={styles.message}>Aucun film similaire trouvé.</p>
       ) : (
-        <div className={styles.similarGrid}>
+        <div className={`${styles.grid} ${styles.similarGrid}`}>
           {similarMovies.map((sm) => {
             const smPoster = sm.poster_path
               ? `${posterBase}${sm.poster_path}`
@@ -300,13 +315,13 @@ const MovieDetails = () => {
                   )}
                 </div>
 
-                <div className={styles.cardBody10}>
+                <div className={styles.cardBody}>
                   <div className={styles.similarTitle}>{sm.title}</div>
                   <div className={styles.similarMeta}>
                     ⭐ {Number(sm.vote_average ?? 0).toFixed(1)}
                   </div>
 
-                  <Link to={`/movie/${sm.id}`} className={styles.backLink}>
+                  <Link to={`/movie/${sm.id}`} className={styles.link}>
                     <button type="button" className={styles.detailsButton}>
                       Voir les détails
                     </button>
