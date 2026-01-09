@@ -1,6 +1,6 @@
 import { useContext, useMemo, useState } from "react";
 import { Link } from "react-router";
-import { WishlistContext } from "../context/WishlistProvider";
+import { WishlistContext } from "../../context/WishlistProvider";
 import styles from "./Wishlist.module.css";
 
 const Wishlist = () => {

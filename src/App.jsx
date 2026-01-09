@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
-import MovieList from "./components/MovieList";
-import MovieDetails from "./components/MovieDetails";
-import Wishlist from "./components/Wishlist";
+import MovieList from "./components/MovieList/MovieList";
+import MovieDetails from "./components/MovieDetails/MovieDetails";
+import Wishlist from "./components/Wishlist/Wishlist";
 import Layout from "./components/Layout";
 import WishlistProvider from "./context/WishlistProvider";
 

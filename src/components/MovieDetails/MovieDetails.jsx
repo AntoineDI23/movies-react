@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
-import { WishlistContext } from "../context/WishlistProvider";
+import { WishlistContext } from "../../context/WishlistProvider";
 import styles from "./MovieDetails.module.css";
 
 const MovieDetails = () => {

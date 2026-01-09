@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { NavLink } from "react-router";
-import { WishlistContext } from "../context/WishlistProvider";
+import { WishlistContext } from "../../context/WishlistProvider";
 import styles from "./Navbar.module.css";
 
 const Navbar = () => {
