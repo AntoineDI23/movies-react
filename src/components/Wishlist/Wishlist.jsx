@@ -18,17 +18,26 @@ const Wishlist = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Wishlist</h1>
+      <p className={styles.subtitle}>
+        Retrouve ici les films que tu veux regarder plus tard.
+      </p>
 
-      <input
-        type="text"
-        placeholder="Rechercher dans la wishlist…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className={styles.searchInput}
-      />
+      <div className={styles.toolbar}>
+        <input
+          type="text"
+          placeholder="Rechercher dans la wishlist…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className={styles.searchInput}
+        />
+
+        <div className={styles.badgeInfo} title="Nombre de films dans la wishlist">
+          Films enregistrés <span className={styles.badgeNumber}>{wishlist.length}</span>
+        </div>
+      </div>
 
       {wishlist.length === 0 ? (
-        <p className={styles.message}>Ta wishlist est vide.</p>
+        <p className={styles.message}>Wishlist vide</p>
       ) : filtered.length === 0 ? (
         <p className={styles.message}>
           Aucun film ne correspond à ta recherche.
@@ -36,9 +45,7 @@ const Wishlist = () => {
       ) : (
         <div className={styles.grid}>
           {filtered.map((m) => {
-            const poster = m.poster_path
-              ? `${posterBase}${m.poster_path}`
-              : null;
+            const poster = m.poster_path ? `${posterBase}${m.poster_path}` : null;
 
             return (
               <article key={m.id} className={styles.card}>
