@@ -4,7 +4,7 @@ Petite application React permettant de :
 - Lister des films
 - Rechercher un film
 - Afficher les détails d’un film (casting, films similaires, bande-annonce YouTube)
-- Ajouter / retirer des films d’une wishlist
+- Ajouter / retirer des films d’une liste de souhaits
 
 Les données sont fournies par l'API de "The Movie Database" (TMDb).
 

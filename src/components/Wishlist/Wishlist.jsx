@@ -17,7 +17,7 @@ const Wishlist = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Wishlist</h1>
+      <h1 className={styles.title}>Liste de souhaits</h1>
       <p className={styles.subtitle}>
         Retrouve ici les films que tu veux regarder plus tard.
       </p>
@@ -25,19 +25,19 @@ const Wishlist = () => {
       <div className={styles.toolbar}>
         <input
           type="text"
-          placeholder="Rechercher dans la wishlist…"
+          placeholder="Rechercher dans la liste de souhaits…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className={styles.searchInput}
         />
 
-        <div className={styles.badgeInfo} title="Nombre de films dans la wishlist">
+        <div className={styles.badgeInfo} title="Nombre de films dans la liste de souhaits">
           Films enregistrés <span className={styles.badgeNumber}>{wishlist.length}</span>
         </div>
       </div>
 
       {wishlist.length === 0 ? (
-        <p className={styles.message}>Wishlist vide</p>
+        <p className={styles.message}>Liste vide</p>
       ) : filtered.length === 0 ? (
         <p className={styles.message}>
           Aucun film ne correspond à ta recherche.

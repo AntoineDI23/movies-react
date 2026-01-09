@@ -3,10 +3,10 @@ import { Link } from "react-router";
 import styles from "./MovieList.module.css";
 
 const CATEGORIES = [
-  { key: "now_playing", label: "Now Playing" },
-  { key: "popular", label: "Popular" },
-  { key: "top_rated", label: "Top Rated" },
-  { key: "upcoming", label: "Upcoming" },
+  { key: "now_playing", label: "En ce moment" },
+  { key: "popular", label: "Populaires" },
+  { key: "top_rated", label: "Les mieux notés" },
+  { key: "upcoming", label: "À venir" },
 ];
 
 const MovieList = () => {
