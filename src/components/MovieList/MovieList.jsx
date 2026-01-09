@@ -27,16 +27,12 @@ const MovieList = () => {
   const posterBase = "https://image.tmdb.org/t/p/w342";
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 350);
-
+    const t = setTimeout(() => setDebouncedQuery(query), 350);
     return () => clearTimeout(t);
   }, [query]);
 
   const rawQueryTrim = useMemo(() => query.trim(), [query]);
   const effectiveQuery = useMemo(() => debouncedQuery.trim(), [debouncedQuery]);
-
   const isDebouncing = rawQueryTrim !== effectiveQuery;
 
   useEffect(() => {
@@ -83,7 +79,6 @@ const MovieList = () => {
     };
 
     fetchMovies();
-
     return () => controller.abort();
   }, [apiKey, category, effectiveQuery, page, isDebouncing]);
 
@@ -123,36 +118,38 @@ const MovieList = () => {
         })}
       </div>
 
-      <input
-        type="text"
-        placeholder="Rechercher un film…"
-        value={query}
-        onChange={(e) => handleQueryChange(e.target.value)}
-        className={styles.searchInput}
-      />
+      <div className={styles.toolbar}>
+        <input
+          type="text"
+          placeholder="Rechercher un film…"
+          value={query}
+          onChange={(e) => handleQueryChange(e.target.value)}
+          className={styles.searchInput}
+        />
 
-      <div className={styles.pagination}>
-        <button
-          type="button"
-          className={styles.pageButton}
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={!canPrev || loading}
-        >
-          Précédent
-        </button>
+        <div className={styles.pagination}>
+          <button
+            type="button"
+            className={styles.pageButton}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={!canPrev || loading}
+          >
+            Précédent
+          </button>
 
-        <span className={styles.pageInfo}>
-          Page {page} / {totalPages}
-        </span>
+          <span className={styles.pageInfo}>
+            Page {page} / {totalPages}
+          </span>
 
-        <button
-          type="button"
-          className={styles.pageButton}
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={!canNext || loading}
-        >
-          Suivant
-        </button>
+          <button
+            type="button"
+            className={styles.pageButton}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={!canNext || loading}
+          >
+            Suivant
+          </button>
+        </div>
       </div>
 
       {loading && <p className={styles.message}>Chargement…</p>}
@@ -163,68 +160,38 @@ const MovieList = () => {
       )}
 
       {!loading && !error && movies.length > 0 && (
-        <>
-          <div className={styles.grid}>
-            {movies.map((m) => {
-              const poster = m.poster_path
-                ? `${posterBase}${m.poster_path}`
-                : null;
+        <div className={styles.grid}>
+          {movies.map((m) => {
+            const poster = m.poster_path
+              ? `${posterBase}${m.poster_path}`
+              : null;
 
-              return (
-                <article key={m.id} className={styles.card}>
-                  <div className={styles.posterWrapper}>
-                    {poster ? (
-                      <img
-                        src={poster}
-                        alt={m.title}
-                        className={styles.poster}
-                      />
-                    ) : (
-                      <div className={styles.noPoster}>Pas d’affiche</div>
-                    )}
-                  </div>
+            return (
+              <article key={m.id} className={styles.card}>
+                <div className={styles.posterWrapper}>
+                  {poster ? (
+                    <img src={poster} alt={m.title} className={styles.poster} />
+                  ) : (
+                    <div className={styles.noPoster}>Pas d’affiche</div>
+                  )}
+                </div>
 
-                  <div className={styles.cardBody}>
-                    <h3 className={styles.movieTitle}>{m.title}</h3>
-                    <p className={styles.rating}>
-                      ⭐ {Number(m.vote_average).toFixed(1)}
-                    </p>
+                <div className={styles.cardBody}>
+                  <h3 className={styles.movieTitle}>{m.title}</h3>
+                  <p className={styles.rating}>
+                    ⭐ {Number(m.vote_average).toFixed(1)}
+                  </p>
 
-                    <Link to={`/movie/${m.id}`} className={styles.link}>
-                      <button type="button" className={styles.detailsButton}>
-                        Voir les détails
-                      </button>
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-
-          <div className={styles.pagination} style={{ marginTop: 16 }}>
-            <button
-              type="button"
-              className={styles.pageButton}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={!canPrev || loading}
-            >
-              Précédent
-            </button>
-
-            <span className={styles.pageInfo}>
-              Page {page} / {totalPages}
-            </span>
-
-            <button
-              type="button"
-              className={styles.pageButton}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={!canNext || loading}
-            >
-              Suivant
-            </button>
-          </div>
-        </>
+                  <Link to={`/movie/${m.id}`} className={styles.link}>
+                    <button type="button" className={styles.detailsButton}>
+                      Voir les détails
+                    </button>
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       )}
     </div>
   );
