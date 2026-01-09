@@ -12,6 +12,7 @@ const MovieDetails = () => {
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [similarMovies, setSimilarMovies] = useState([]);
 
   const posterBase = "https://image.tmdb.org/t/p/w500";
   const profileBase = "https://image.tmdb.org/t/p/w185";
@@ -36,16 +37,32 @@ const MovieDetails = () => {
         setLoading(true);
         setError(null);
 
-        const url = new URL(`https://api.themoviedb.org/3/movie/${id}`);
-        url.searchParams.set("api_key", apiKey);
-        url.searchParams.set("language", "fr-FR");
-        url.searchParams.set("append_to_response", "credits");
+        const detailsUrl = new URL(`https://api.themoviedb.org/3/movie/${id}`);
+        detailsUrl.searchParams.set("api_key", apiKey);
+        detailsUrl.searchParams.set("language", "fr-FR");
+        detailsUrl.searchParams.set("append_to_response", "credits");
 
-        const res = await fetch(url, { signal: controller.signal });
-        if (!res.ok) throw new Error(`Erreur API TMDb (${res.status})`);
+        const similarUrl = new URL(
+          `https://api.themoviedb.org/3/movie/${id}/similar`
+        );
+        similarUrl.searchParams.set("api_key", apiKey);
+        similarUrl.searchParams.set("language", "fr-FR");
 
-        const data = await res.json();
-        setMovie(data);
+        const [detailsRes, similarRes] = await Promise.all([
+          fetch(detailsUrl, { signal: controller.signal }),
+          fetch(similarUrl, { signal: controller.signal }),
+        ]);
+
+        if (!detailsRes.ok)
+          throw new Error(`Erreur API (${detailsRes.status})`);
+        if (!similarRes.ok)
+          throw new Error(`Erreur API (${similarRes.status})`);
+
+        const detailsData = await detailsRes.json();
+        const similarData = await similarRes.json();
+
+        setMovie(detailsData);
+        setSimilarMovies((similarData.results ?? []).slice(0, 12));
       } catch (e) {
         if (e.name !== "AbortError") setError(e.message || "Erreur inconnue");
       } finally {
@@ -266,6 +283,92 @@ const MovieDetails = () => {
                 <div style={{ padding: 10 }}>
                   <div style={{ fontWeight: 800 }}>{a.name}</div>
                   <div style={{ color: "#666" }}>{a.character}</div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      <h2 style={{ margin: "22px 0 10px" }}>Films similaires</h2>
+
+      {similarMovies.length === 0 ? (
+        <p>Aucun film similaire trouvé.</p>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: 12,
+          }}
+        >
+          {similarMovies.map((sm) => {
+            const poster = sm.poster_path
+              ? `${posterBase}${sm.poster_path}`
+              : null;
+
+            return (
+              <article
+                key={sm.id}
+                style={{
+                  border: "1px solid #e6e6e6",
+                  borderRadius: 14,
+                  overflow: "hidden",
+                  background: "#fff",
+                  boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
+                }}
+              >
+                <div style={{ height: 280, background: "#f3f3f3" }}>
+                  {poster ? (
+                    <img
+                      src={poster}
+                      alt={sm.title}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        height: "100%",
+                        display: "grid",
+                        placeItems: "center",
+                        color: "#666",
+                      }}
+                    >
+                      Pas d’affiche
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ padding: 10 }}>
+                  <div style={{ fontWeight: 800, marginBottom: 6 }}>
+                    {sm.title}
+                  </div>
+                  <div style={{ color: "#666", marginBottom: 10 }}>
+                    ⭐ {Number(sm.vote_average ?? 0).toFixed(1)}
+                  </div>
+
+                  <Link
+                    to={`/movie/${sm.id}`}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <button
+                      type="button"
+                      style={{
+                        width: "100%",
+                        padding: "8px 10px",
+                        borderRadius: 10,
+                        border: "1px solid #ddd",
+                        background: "#fff",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Voir les détails
+                    </button>
+                  </Link>
                 </div>
               </article>
             );
