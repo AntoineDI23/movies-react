@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
 import { WishlistContext } from "../context/WishlistProvider";
+import styles from "./MovieDetails.module.css";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -83,27 +84,33 @@ const MovieDetails = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: 16 }}>
-        <Link to="/">← Retour</Link>
-        <p style={{ marginTop: 12 }}>Chargement…</p>
+      <div className={styles.container}>
+        <Link to="/" className={styles.backLink}>
+          ← Retour
+        </Link>
+        <p className={styles.message}>Chargement…</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: 16 }}>
-        <Link to="/">← Retour</Link>
-        <p style={{ marginTop: 12, color: "crimson" }}>❌ {error}</p>
+      <div className={styles.container}>
+        <Link to="/" className={styles.backLink}>
+          ← Retour
+        </Link>
+        <p className={styles.error}>❌ {error}</p>
       </div>
     );
   }
 
   if (!movie) {
     return (
-      <div style={{ padding: 16 }}>
-        <Link to="/">← Retour</Link>
-        <p style={{ marginTop: 12 }}>Film introuvable.</p>
+      <div className={styles.container}>
+        <Link to="/" className={styles.backLink}>
+          ← Retour
+        </Link>
+        <p className={styles.message}>Film introuvable.</p>
       </div>
     );
   }
@@ -116,173 +123,103 @@ const MovieDetails = () => {
   const cast = movie.credits?.cast?.slice(0, 10) ?? [];
 
   return (
-    <div style={{ padding: 16, maxWidth: 1100, margin: "0 auto" }}>
-      <Link to="/">← Retour</Link>
+    <div className={styles.container}>
+      <Link to="/" className={styles.backLink}>
+        ← Retour
+      </Link>
 
       {backdrop && (
-        <div
-          style={{
-            marginTop: 12,
-            borderRadius: 14,
-            overflow: "hidden",
-            border: "1px solid #e6e6e6",
-            background: "#f3f3f3",
-          }}
-        >
+        <div className={styles.backdropCard}>
           <img
             src={backdrop}
             alt={`Backdrop ${movie.title}`}
-            style={{ width: "100%", height: 260, objectFit: "cover" }}
+            className={styles.backdropImg}
           />
         </div>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "220px 1fr",
-          gap: 16,
-          marginTop: 16,
-        }}
-      >
+      <div className={styles.topGrid}>
         <div>
-          <div
-            style={{
-              border: "1px solid #e6e6e6",
-              borderRadius: 14,
-              overflow: "hidden",
-              background: "#f3f3f3",
-              height: 330,
-            }}
-          >
+          <div className={styles.posterCard}>
             {poster ? (
               <img
                 src={poster}
                 alt={movie.title}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                className={styles.posterImg}
               />
             ) : (
-              <div
-                style={{
-                  height: "100%",
-                  display: "grid",
-                  placeItems: "center",
-                  color: "#666",
-                }}
-              >
-                Pas d’affiche
-              </div>
+              <div className={styles.noImage}>Pas d’affiche</div>
             )}
           </div>
 
           <button
             type="button"
             onClick={toggleWishlist}
-            style={{
-              width: "100%",
-              marginTop: 10,
-              padding: "10px 12px",
-              borderRadius: 12,
-              border: "1px solid #ddd",
-              background: inWishlist ? "#ffecec" : "#fff",
-              cursor: "pointer",
-              fontWeight: 700,
-            }}
+            className={`${styles.wishlistButton} ${
+              inWishlist ? styles.wishlistButtonActive : ""
+            }`}
           >
             {inWishlist ? "Retirer de la wishlist" : "Ajouter à la wishlist"}
           </button>
         </div>
 
         <div>
-          <h1 style={{ margin: "0 0 6px" }}>{movie.title}</h1>
+          <h1 className={styles.title}>{movie.title}</h1>
 
-          {movie.tagline && (
-            <p
-              style={{ margin: "0 0 10px", color: "#666", fontStyle: "italic" }}
-            >
-              {movie.tagline}
-            </p>
-          )}
+          {movie.tagline && <p className={styles.tagline}>{movie.tagline}</p>}
 
-          <p style={{ margin: "0 0 10px", color: "#444" }}>
+          <p className={styles.metaLine}>
             ⭐ {Number(movie.vote_average).toFixed(1)}{" "}
-            <span style={{ color: "#777" }}>({movie.vote_count} votes)</span>
+            <span className={styles.metaMuted}>({movie.vote_count} votes)</span>
           </p>
 
-          <p style={{ margin: "0 0 10px", color: "#444" }}>
+          <p className={styles.metaLine}>
             <b>Date de sortie :</b> {movie.release_date || "—"}
             {"  "}•{"  "}
             <b>Durée :</b> {movie.runtime ? `${movie.runtime} min` : "—"}
           </p>
 
           {movie.genres?.length > 0 && (
-            <p style={{ margin: "0 0 12px", color: "#444" }}>
+            <p className={styles.metaLine}>
               <b>Genres :</b> {movie.genres.map((g) => g.name).join(", ")}
             </p>
           )}
 
-          <h2 style={{ margin: "16px 0 8px" }}>Résumé</h2>
-          <p style={{ margin: 0, lineHeight: 1.5 }}>
+          <h2 className={styles.resumeTitle}>Résumé</h2>
+          <p className={styles.overview}>
             {movie.overview || "Aucun résumé disponible."}
           </p>
         </div>
       </div>
 
-      <h2 style={{ margin: "22px 0 10px" }}>Acteurs principaux</h2>
+      <h2 className={styles.sectionTitle}>Acteurs principaux</h2>
 
       {cast.length === 0 ? (
         <p>Aucun casting disponible.</p>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
-            gap: 12,
-          }}
-        >
+        <div className={styles.castGrid}>
           {cast.map((a) => {
             const profile = a.profile_path
               ? `${profileBase}${a.profile_path}`
               : null;
 
             return (
-              <article
-                key={a.id}
-                style={{
-                  border: "1px solid #e6e6e6",
-                  borderRadius: 14,
-                  overflow: "hidden",
-                  background: "#fff",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
-                }}
-              >
-                <div style={{ height: 220, background: "#f3f3f3" }}>
+              <article key={a.id} className={styles.card}>
+                <div className={styles.cardImageWrap220}>
                   {profile ? (
                     <img
                       src={profile}
                       alt={a.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
+                      className={styles.cardImg}
                     />
                   ) : (
-                    <div
-                      style={{
-                        height: "100%",
-                        display: "grid",
-                        placeItems: "center",
-                        color: "#666",
-                      }}
-                    >
-                      Pas de photo
-                    </div>
+                    <div className={styles.noImage}>Pas de photo</div>
                   )}
                 </div>
-                <div style={{ padding: 10 }}>
-                  <div style={{ fontWeight: 800 }}>{a.name}</div>
-                  <div style={{ color: "#666" }}>{a.character}</div>
+
+                <div className={styles.cardBody10}>
+                  <div className={styles.actorName}>{a.name}</div>
+                  <div className={styles.actorRole}>{a.character}</div>
                 </div>
               </article>
             );
@@ -290,82 +227,39 @@ const MovieDetails = () => {
         </div>
       )}
 
-      <h2 style={{ margin: "22px 0 10px" }}>Films similaires</h2>
+      <h2 className={styles.sectionTitle}>Films similaires</h2>
 
       {similarMovies.length === 0 ? (
         <p>Aucun film similaire trouvé.</p>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: 12,
-          }}
-        >
+        <div className={styles.similarGrid}>
           {similarMovies.map((sm) => {
-            const poster = sm.poster_path
+            const smPoster = sm.poster_path
               ? `${posterBase}${sm.poster_path}`
               : null;
 
             return (
-              <article
-                key={sm.id}
-                style={{
-                  border: "1px solid #e6e6e6",
-                  borderRadius: 14,
-                  overflow: "hidden",
-                  background: "#fff",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
-                }}
-              >
-                <div style={{ height: 280, background: "#f3f3f3" }}>
-                  {poster ? (
+              <article key={sm.id} className={styles.card}>
+                <div className={styles.cardImageWrap280}>
+                  {smPoster ? (
                     <img
-                      src={poster}
+                      src={smPoster}
                       alt={sm.title}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
+                      className={styles.cardImg}
                     />
                   ) : (
-                    <div
-                      style={{
-                        height: "100%",
-                        display: "grid",
-                        placeItems: "center",
-                        color: "#666",
-                      }}
-                    >
-                      Pas d’affiche
-                    </div>
+                    <div className={styles.noImage}>Pas d’affiche</div>
                   )}
                 </div>
 
-                <div style={{ padding: 10 }}>
-                  <div style={{ fontWeight: 800, marginBottom: 6 }}>
-                    {sm.title}
-                  </div>
-                  <div style={{ color: "#666", marginBottom: 10 }}>
+                <div className={styles.cardBody10}>
+                  <div className={styles.similarTitle}>{sm.title}</div>
+                  <div className={styles.similarMeta}>
                     ⭐ {Number(sm.vote_average ?? 0).toFixed(1)}
                   </div>
 
-                  <Link
-                    to={`/movie/${sm.id}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <button
-                      type="button"
-                      style={{
-                        width: "100%",
-                        padding: "8px 10px",
-                        borderRadius: 10,
-                        border: "1px solid #ddd",
-                        background: "#fff",
-                        cursor: "pointer",
-                      }}
-                    >
+                  <Link to={`/movie/${sm.id}`} className={styles.backLink}>
+                    <button type="button" className={styles.detailsButton}>
                       Voir les détails
                     </button>
                   </Link>
