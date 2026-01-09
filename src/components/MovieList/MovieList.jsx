@@ -14,6 +14,8 @@ const MovieList = () => {
 
   const [category, setCategory] = useState("popular");
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
   const [movies, setMovies] = useState([]);
 
   const [page, setPage] = useState(1);
@@ -23,11 +25,19 @@ const MovieList = () => {
   const [error, setError] = useState(null);
 
   const posterBase = "https://image.tmdb.org/t/p/w342";
-  const effectiveQuery = useMemo(() => query.trim(), [query]);
 
   useEffect(() => {
-    setPage(1);
-  }, [category, effectiveQuery]);
+    const t = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 350);
+
+    return () => clearTimeout(t);
+  }, [query]);
+
+  const rawQueryTrim = useMemo(() => query.trim(), [query]);
+  const effectiveQuery = useMemo(() => debouncedQuery.trim(), [debouncedQuery]);
+
+  const isDebouncing = rawQueryTrim !== effectiveQuery;
 
   useEffect(() => {
     if (!apiKey) {
@@ -35,6 +45,8 @@ const MovieList = () => {
       setLoading(false);
       return;
     }
+
+    if (isDebouncing) return;
 
     const controller = new AbortController();
 
@@ -62,7 +74,6 @@ const MovieList = () => {
 
         const data = await res.json();
         setMovies(data.results ?? []);
-
         setTotalPages(data.total_pages ?? 1);
       } catch (e) {
         if (e.name !== "AbortError") setError(e.message || "Erreur inconnue");
@@ -71,16 +82,23 @@ const MovieList = () => {
       }
     };
 
-    const t = setTimeout(fetchMovies, 350);
+    fetchMovies();
 
-    return () => {
-      clearTimeout(t);
-      controller.abort();
-    };
-  }, [apiKey, category, effectiveQuery, page]);
+    return () => controller.abort();
+  }, [apiKey, category, effectiveQuery, page, isDebouncing]);
 
   const canPrev = page > 1;
   const canNext = page < totalPages;
+
+  const handleCategoryClick = (newCategory) => {
+    setCategory(newCategory);
+    setPage(1);
+  };
+
+  const handleQueryChange = (value) => {
+    setQuery(value);
+    setPage(1);
+  };
 
   return (
     <div className={styles.container}>
@@ -94,7 +112,7 @@ const MovieList = () => {
             <button
               key={c.key}
               type="button"
-              onClick={() => setCategory(c.key)}
+              onClick={() => handleCategoryClick(c.key)}
               className={`${styles.categoryButton} ${
                 isActive ? styles.categoryButtonActive : ""
               }`}
@@ -109,7 +127,7 @@ const MovieList = () => {
         type="text"
         placeholder="Rechercher un film…"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => handleQueryChange(e.target.value)}
         className={styles.searchInput}
       />
 
