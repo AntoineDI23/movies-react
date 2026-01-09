@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { NavLink } from "react-router";
+import { NavLink, Link } from "react-router";
 import { WishlistContext } from "../../context/WishlistProvider";
 import styles from "./Navbar.module.css";
 
@@ -13,20 +13,28 @@ const Navbar = () => {
     <header className={styles.header}>
       <nav className={styles.nav}>
         <div className={styles.left}>
-          <NavLink to="/" className={linkClassName}>
-            🎬 Films
-          </NavLink>
+          <Link to="/" className={styles.brand}>
+            🎬 CESIflix
+          </Link>
 
-          <NavLink to="/wishlist" className={linkClassName}>
-            ⭐ Wishlist
-            <span
-              className={styles.badge}
-              title="Nombre de films dans la wishlist"
-            >
-              {wishlist.length}
-            </span>
-          </NavLink>
+          <div className={styles.links}>
+            <NavLink to="/" className={linkClassName}>
+              Films
+            </NavLink>
+
+            <NavLink to="/wishlist" className={linkClassName}>
+              Liste de souhaits
+              <span
+                className={styles.badge}
+                title="Nombre de films dans la liste de souhaits"
+              >
+                {wishlist.length}
+              </span>
+            </NavLink>
+          </div>
         </div>
+
+        <div className={styles.rightHint}>TMDb • React</div>
       </nav>
     </header>
   );
