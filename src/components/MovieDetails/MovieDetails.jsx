@@ -3,6 +3,19 @@ import { Link, useParams } from "react-router";
 import { WishlistContext } from "../../context/WishlistProvider";
 import styles from "./MovieDetails.module.css";
 
+const pickBestYoutubeTrailer = (results = []) => {
+  const yt = results.filter((v) => v.site === "YouTube");
+  if (yt.length === 0) return null;
+
+  return (
+    yt.find((v) => v.type === "Trailer" && v.official) ||
+    yt.find((v) => v.type === "Trailer") ||
+    yt.find((v) => v.type === "Teaser" && v.official) ||
+    yt.find((v) => v.type === "Teaser") ||
+    yt[0]
+  );
+};
+
 const MovieDetails = () => {
   const { id } = useParams();
   const apiKey = import.meta.env.VITE_TMDB_API_KEY;
@@ -11,9 +24,11 @@ const MovieDetails = () => {
     useContext(WishlistContext);
 
   const [movie, setMovie] = useState(null);
+  const [similarMovies, setSimilarMovies] = useState([]);
+  const [trailer, setTrailer] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [similarMovies, setSimilarMovies] = useState([]);
 
   const posterBase = "https://image.tmdb.org/t/p/w500";
   const profileBase = "https://image.tmdb.org/t/p/w185";
@@ -49,21 +64,33 @@ const MovieDetails = () => {
         similarUrl.searchParams.set("api_key", apiKey);
         similarUrl.searchParams.set("language", "fr-FR");
 
-        const [detailsRes, similarRes] = await Promise.all([
+        const videosUrl = new URL(
+          `https://api.themoviedb.org/3/movie/${id}/videos`
+        );
+        videosUrl.searchParams.set("api_key", apiKey);
+        videosUrl.searchParams.set("language", "fr-FR");
+
+        const [detailsRes, similarRes, videosRes] = await Promise.all([
           fetch(detailsUrl, { signal: controller.signal }),
           fetch(similarUrl, { signal: controller.signal }),
+          fetch(videosUrl, { signal: controller.signal }),
         ]);
 
         if (!detailsRes.ok)
           throw new Error(`Erreur API (${detailsRes.status})`);
         if (!similarRes.ok)
           throw new Error(`Erreur API (${similarRes.status})`);
+        if (!videosRes.ok) throw new Error(`Erreur API (${videosRes.status})`);
 
         const detailsData = await detailsRes.json();
         const similarData = await similarRes.json();
+        const videosData = await videosRes.json();
 
         setMovie(detailsData);
         setSimilarMovies((similarData.results ?? []).slice(0, 12));
+
+        const best = pickBestYoutubeTrailer(videosData.results ?? []);
+        setTrailer(best ? { key: best.key, name: best.name } : null);
       } catch (e) {
         if (e.name !== "AbortError") setError(e.message || "Erreur inconnue");
       } finally {
@@ -72,6 +99,7 @@ const MovieDetails = () => {
     };
 
     fetchDetails();
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     return () => controller.abort();
   }, [apiKey, id]);
@@ -189,6 +217,26 @@ const MovieDetails = () => {
           <p className={styles.overview}>
             {movie.overview || "Aucun résumé disponible."}
           </p>
+
+          <section className={styles.trailerSection}>
+            <h2 className={styles.sectionTitle}>Bande-annonce</h2>
+
+            {trailer ? (
+              <div className={styles.trailerFrame}>
+                <div className={styles.trailerRatio}>
+                  <iframe
+                    className={styles.trailerIframe}
+                    src={`https://www.youtube-nocookie.com/embed/${trailer.key}`}
+                    title={trailer.name || `Trailer ${movie.title}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            ) : (
+              <p>Aucune bande-annonce YouTube trouvée pour ce film.</p>
+            )}
+          </section>
         </div>
       </div>
 
