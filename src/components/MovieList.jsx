@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
+import styles from "./MovieList.module.css";
 
 const CATEGORIES = [
   { key: "now_playing", label: "Now Playing" },
@@ -19,7 +20,6 @@ const MovieList = () => {
   const [error, setError] = useState(null);
 
   const posterBase = "https://image.tmdb.org/t/p/w342";
-
   const effectiveQuery = useMemo(() => query.trim(), [query]);
 
   useEffect(() => {
@@ -70,29 +70,26 @@ const MovieList = () => {
   }, [apiKey, category, effectiveQuery]);
 
   return (
-    <div style={{ padding: 16, maxWidth: 1100, margin: "0 auto" }}>
-      <h1>Films</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Films</h1>
 
-      <div
-        style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}
-      >
-        {CATEGORIES.map((c) => (
-          <button
-            key={c.key}
-            type="button"
-            onClick={() => setCategory(c.key)}
-            style={{
-              padding: "8px 10px",
-              borderRadius: 10,
-              border: "1px solid #ddd",
-              cursor: "pointer",
-              fontWeight: c.key === category ? 700 : 400,
-              background: c.key === category ? "#f2f2f2" : "#fff",
-            }}
-          >
-            {c.label}
-          </button>
-        ))}
+      <div className={styles.categories}>
+        {CATEGORIES.map((c) => {
+          const isActive = c.key === category;
+
+          return (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => setCategory(c.key)}
+              className={`${styles.categoryButton} ${
+                isActive ? styles.categoryButtonActive : ""
+              }`}
+            >
+              {c.label}
+            </button>
+          );
+        })}
       </div>
 
       <input
@@ -100,93 +97,41 @@ const MovieList = () => {
         placeholder="Rechercher un film…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        style={{
-          width: "100%",
-          maxWidth: 420,
-          padding: 10,
-          borderRadius: 10,
-          border: "1px solid #ddd",
-        }}
+        className={styles.searchInput}
       />
 
-      {loading && <p style={{ marginTop: 12 }}>Chargement…</p>}
-      {error && <p style={{ marginTop: 12, color: "crimson" }}>❌ {error}</p>}
+      {loading && <p className={styles.message}>Chargement…</p>}
+      {error && <p className={styles.error}>❌ {error}</p>}
 
       {!loading && !error && movies.length === 0 && (
-        <p style={{ marginTop: 12 }}>Aucun résultat.</p>
+        <p className={styles.message}>Aucun résultat.</p>
       )}
 
       {!loading && !error && movies.length > 0 && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: 14,
-            marginTop: 16,
-          }}
-        >
+        <div className={styles.grid}>
           {movies.map((m) => {
             const poster = m.poster_path
               ? `${posterBase}${m.poster_path}`
               : null;
 
             return (
-              <article
-                key={m.id}
-                style={{
-                  border: "1px solid #e3e3e3",
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  background: "#fff",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
-                }}
-              >
-                <div style={{ height: 330, background: "#f3f3f3" }}>
+              <article key={m.id} className={styles.card}>
+                <div className={styles.posterWrapper}>
                   {poster ? (
-                    <img
-                      src={poster}
-                      alt={m.title}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
+                    <img src={poster} alt={m.title} className={styles.poster} />
                   ) : (
-                    <div
-                      style={{
-                        height: "100%",
-                        display: "grid",
-                        placeItems: "center",
-                        color: "#666",
-                      }}
-                    >
-                      Pas d’affiche
-                    </div>
+                    <div className={styles.noPoster}>Pas d’affiche</div>
                   )}
                 </div>
 
-                <div style={{ padding: 12 }}>
-                  <h3 style={{ margin: "0 0 6px" }}>{m.title}</h3>
-                  <p style={{ margin: "0 0 10px", color: "#555" }}>
+                <div className={styles.cardBody}>
+                  <h3 className={styles.movieTitle}>{m.title}</h3>
+                  <p className={styles.rating}>
                     ⭐ {Number(m.vote_average).toFixed(1)}
                   </p>
 
-                  <Link
-                    to={`/movie/${m.id}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <button
-                      type="button"
-                      style={{
-                        width: "100%",
-                        padding: "8px 10px",
-                        borderRadius: 10,
-                        border: "1px solid #ddd",
-                        background: "#fff",
-                        cursor: "pointer",
-                      }}
-                    >
+                  <Link to={`/movie/${m.id}`} className={styles.link}>
+                    <button type="button" className={styles.detailsButton}>
                       Voir les détails
                     </button>
                   </Link>
