@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import MovieList from "./components/MovieList";
 import MovieDetails from "./components/MovieDetails";
+import Wishlist from "./components/Wishlist";
+import Layout from "./components/Layout";
 import WishlistProvider from "./context/WishlistProvider";
 
 function App() {
@@ -8,8 +10,12 @@ function App() {
     <WishlistProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MovieList />} />
-          <Route path="/movie/:id" element={<MovieDetails />} />
+          <Route element={<Layout />}>
+            <Route path="/" element={<MovieList />} />
+            <Route path="/movie/:id" element={<MovieDetails />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+          </Route>
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
